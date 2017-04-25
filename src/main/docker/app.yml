@@ -1,0 +1,14 @@
+version: '2'
+services:
+    holyfamily-app:
+        image: holyfamily
+        environment:
+            - SPRING_PROFILES_ACTIVE=prod,swagger
+            - SPRING_DATASOURCE_URL=jdbc:postgresql://holyfamily-postgresql:5432/holyfamily
+            - JHIPSTER_SLEEP=10 # gives time for the database to boot before the application
+        ports:
+            - 8080:8080
+    holyfamily-postgresql:
+        extends:
+            file: postgresql.yml
+            service: holyfamily-postgresql

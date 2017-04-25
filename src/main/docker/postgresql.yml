@@ -1,0 +1,11 @@
+version: '2'
+services:
+    holyfamily-postgresql:
+        image: postgres:9.5.4
+        # volumes:
+        #     - ~/volumes/jhipster/holyfamily/postgresql/:/var/lib/postgresql/
+        environment:
+            - POSTGRES_USER=holyfamily
+            - POSTGRES_PASSWORD=
+        ports:
+            - 5432:5432
