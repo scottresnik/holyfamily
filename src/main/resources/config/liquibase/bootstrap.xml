@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet author="sresnik" id="00000000000000_hf_tag_blank">
+        <tagDatabase tag="blank" />
+    </changeSet>
+
+    <changeSet author="sresnik" id="00000000000000_hf_create_dbuser">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            CREATE USER ${jdbcUser} WITH LOGIN NOSUPERUSER NOCREATEDB
+            NOCREATEROLE INHERIT NOREPLICATION CONNECTION LIMIT -1
+            PASSWORD '${jdbcPassword}';
+        </sql>
+        <rollback>DROP USER holyfamily</rollback>
+    </changeSet>
+
+    <changeSet author="sresnik" id="00000000000000_hf_create_database"
+               runInTransaction="false">
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            CREATE DATABASE holyfamily WITH OWNER=${jdbcUser} ENCODING='UTF8'
+            CONNECTION LIMIT = -1;
+        </sql>
+        <rollback>DROP DATABASE holyfamily</rollback>
+    </changeSet>
+    <changeSet author="sresnik" id="00000000000000_hf_enable_uuid-ossp">
+        <!-- The rollback is here to make liquibase happy, and to not actually have any effect. -->
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+        </sql>
+        <rollback>CREATE EXTENSION IF NOT EXISTS "uuid-ossp";</rollback>
+    </changeSet>
+</databaseChangeLog>
