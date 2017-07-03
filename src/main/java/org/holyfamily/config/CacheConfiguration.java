@@ -12,9 +12,9 @@ import com.hazelcast.config.MaxSizeConfig;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.*;
@@ -54,6 +54,11 @@ public class CacheConfiguration {
     @Bean
     public HazelcastInstance hazelcastInstance(JHipsterProperties jHipsterProperties) {
         log.debug("Configuring Hazelcast");
+        HazelcastInstance hazelCastInstance = Hazelcast.getHazelcastInstanceByName("holyfamily");
+        if (hazelCastInstance != null) {
+            log.debug("Hazelcast already initialized");
+            return hazelCastInstance;
+        }
         Config config = new Config();
         config.setInstanceName("holyfamily");
         config.getNetworkConfig().setPort(5701);
@@ -117,7 +122,7 @@ public class CacheConfiguration {
     }
 
     /**
-     * Use by Spring Security, to get events from Hazelcast.
+     * Used by Spring Security, to get events from Hazelcast.
      *
      * @return the session registry
      */

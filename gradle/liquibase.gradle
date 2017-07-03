@@ -1,28 +1,41 @@
 import org.gradle.internal.os.OperatingSystem
 
 configurations {
-    liquibase
+    confLiquibase
 }
 
 dependencies {
-    liquibase "org.liquibase.ext:liquibase-hibernate5:${liquibase_hibernate5_version}"
+    confLiquibase "org.liquibase.ext:liquibase-hibernate5:${liquibase_hibernate5_version}"
 }
 
 if (OperatingSystem.current().isWindows()) {
     task pathingLiquibaseJar(type: Jar) {
-        dependsOn configurations.liquibase
+        dependsOn configurations.confLiquibase
         appendix = 'pathingLiquibase'
 
         doFirst {
             manifest {
                 attributes 'Class-Path':
                     sourceSets.main.runtimeClasspath.plus(configurations.liquibase)
-                    .collect {
+                        .collect {
                         it.toURL().toString().replaceFirst(/file:\/+/, '/')
                     }.join(' ')
             }
         }
     }
+}
+
+liquibase {
+    activities {
+        bootstrap {
+            changeLogFile 'src/main/resources/config/liquibase/bootstrap.xml'
+            changeLogParameters([jdbcUser: project.ext.holyFamilyJdbcUser, jdbcPassword: project.ext.holyFamilyJdbcPassword])
+            url project.ext.holyFamilyBootstrapJdbcUrl
+            username project.ext.holyFamilyBootstrapJdbcUser
+            password project.ext.holyFamilyBootstrapJdbcPassword
+        }
+    }
+    runList = project.ext.liquibaseRunList
 }
 
 task liquibaseDiffChangelog(dependsOn: compileJava, type: JavaExec) {
@@ -39,7 +52,7 @@ task liquibaseDiffChangelog(dependsOn: compileJava, type: JavaExec) {
     }
     main = "liquibase.integration.commandline.Main"
 
-    args "--changeLogFile=src/main/resources/config/liquibase/changelog/" + buildTimestamp() +"_changelog.xml"
+    args "--changeLogFile=src/main/resources/config/liquibase/changelog/" + buildTimestamp() + "_changelog.xml"
     args "--referenceUrl=hibernate:spring:org.holyfamily.domain?dialect=org.hibernate.dialect.PostgreSQL82Dialect&hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy"
     args "--username=holyfamily"
     args "--password="
@@ -47,6 +60,24 @@ task liquibaseDiffChangelog(dependsOn: compileJava, type: JavaExec) {
     args "--driver=org.postgresql.Driver"
     args "diffChangeLog"
     args "--excludeObjects=oauth_access_token, oauth_approvals, oauth_client_details, oauth_client_token, oauth_code, oauth_refresh_token"
+}
+
+
+task cleanupLiquibaseCommand {
+    group = 'liquibase'
+    doFirst {
+        project.ext['liquibaseCommandValue'] = null
+    }
+    mustRunAfter liquibaseRollback
+}
+
+task cleanDb {
+    group = 'liquibase'
+    doFirst {
+        project.ext.liquibaseRunList = 'bootstrap'
+        project.ext.liquibaseCommandValue = project.ext.liquibaseInitialTag
+    }
+    finalizedBy liquibaseRollback, cleanupLiquibaseCommand
 }
 
 def buildTimestamp() {

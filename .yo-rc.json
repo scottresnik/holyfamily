@@ -3,7 +3,7 @@
     "promptValues": {
       "packageName": "org.holyfamily"
     },
-    "jhipsterVersion": "4.1.1",
+    "jhipsterVersion": "4.5.6",
     "baseName": "holyfamily",
     "packageName": "org.holyfamily",
     "packageFolder": "org/holyfamily",
@@ -11,7 +11,7 @@
     "authenticationType": "oauth2",
     "hibernateCache": "hazelcast",
     "clusteredHttpSession": "hazelcast",
-    "websocket": "spring-websocket",
+    "websocket": false,
     "databaseType": "sql",
     "devDatabaseType": "postgresql",
     "prodDatabaseType": "postgresql",
@@ -20,20 +20,12 @@
     "serviceDiscoveryType": false,
     "buildTool": "gradle",
     "enableSocialSignIn": false,
-    "clientFramework": "angular1",
-    "useSass": true,
+    "clientFramework": "angular2",
+    "useSass": false,
     "clientPackageManager": "yarn",
     "applicationType": "monolith",
-    "testFrameworks": [
-      "gatling"
-    ],
+    "testFrameworks": [],
     "jhiPrefix": "jhi",
-    "otherModules": [
-      {
-        "name": "generator-jhipster-react",
-        "version": "0.0.0"
-      }
-    ],
     "enableTranslation": false
   }
 }
