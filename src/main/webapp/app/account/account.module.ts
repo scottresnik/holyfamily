@@ -9,6 +9,8 @@ import {
     PasswordService,
     PasswordResetInitService,
     PasswordResetFinishService,
+    SessionsService,
+    SessionsComponent,
     PasswordStrengthBarComponent,
     RegisterComponent,
     ActivateComponent,
@@ -16,6 +18,7 @@ import {
     PasswordResetInitComponent,
     PasswordResetFinishComponent,
     SettingsComponent,
+    SocialRegisterComponent,
     accountState
 } from './';
 
@@ -25,15 +28,18 @@ import {
         RouterModule.forRoot(accountState, { useHash: true })
     ],
     declarations: [
+        SocialRegisterComponent,
         ActivateComponent,
         RegisterComponent,
         PasswordComponent,
         PasswordStrengthBarComponent,
         PasswordResetInitComponent,
         PasswordResetFinishComponent,
+        SessionsComponent,
         SettingsComponent
     ],
     providers: [
+        SessionsService,
         Register,
         ActivateService,
         PasswordService,

@@ -16,7 +16,7 @@ if (OperatingSystem.current().isWindows()) {
         doFirst {
             manifest {
                 attributes 'Class-Path':
-                    sourceSets.main.runtimeClasspath.plus(configurations.liquibase)
+                    sourceSets.main.runtimeClasspath.plus(configurations.confLiquibase)
                         .collect {
                         it.toURL().toString().replaceFirst(/file:\/+/, '/')
                     }.join(' ')

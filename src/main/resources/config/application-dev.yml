@@ -94,6 +94,10 @@ jhipster:
         exposed-headers:
         allow-credentials: true
         max-age: 1800
+    security:
+        remember-me:
+            # security key (this key should be unique for your application, and kept secret)
+            key: 4748b9500c6d6a0658799cb70a00c4b88af2b42b
     mail: # specific JHipster mail property, for standard properties see MailProperties
         from: holyfamily@localhost
         base-url: http://127.0.0.1:8080

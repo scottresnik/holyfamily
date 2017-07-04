@@ -86,12 +86,9 @@ jhipster:
         from: test@localhost
         base-url: http://127.0.0.1:8080
     security:
-        authentication:
-            oauth:
-                client-id: holyfamilyapp
-                client-secret: my-secret-token-to-change-in-production
-                # Token is valid 30 minutes
-                token-validity-in-seconds: 1800
+        remember-me:
+            # security key (this key should be unique for your application, and kept secret)
+            key: 4748b9500c6d6a0658799cb70a00c4b88af2b42b
     metrics: # DropWizard Metrics configuration, used by MetricsConfiguration
         jmx.enabled: true
         logs: # Reports Dropwizard metrics in the logs
