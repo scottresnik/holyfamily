@@ -38,7 +38,7 @@ public class SocialController {
         } catch (Exception e) {
             log.error("Exception creating social user: ", e);
             return new RedirectView(URIBuilder.fromUri("/#/social-register/no-provider")
-                .queryParam("success", "false")
+                .queryParam("error", "true")
                 .build().toString(), true);
         }
     }

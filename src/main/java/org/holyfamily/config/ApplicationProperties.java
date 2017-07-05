@@ -2,6 +2,9 @@ package org.holyfamily.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import javax.validation.Valid;
+import java.util.List;
+
 /**
  * Properties specific to JHipster.
  * <p>
@@ -9,5 +12,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = "application", ignoreUnknownFields = false)
 public class ApplicationProperties {
+    private List<String> authorizedDomains;
 
+    @Valid
+    public List<String> getAuthorizedDomains() {
+        return authorizedDomains;
+    }
+
+    public void setAuthorizedDomains(List<String> authorizedDomains) {
+        this.authorizedDomains = authorizedDomains;
+    }
 }

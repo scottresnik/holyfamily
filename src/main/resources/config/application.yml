@@ -123,3 +123,6 @@ jhipster:
 # ===================================================================
 
 application:
+    authorized-domains:
+      - holyfamilyporthudson.org
+#      - liquidintellect.com
