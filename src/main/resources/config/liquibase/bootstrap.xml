@@ -13,7 +13,7 @@
             NOCREATEROLE INHERIT NOREPLICATION CONNECTION LIMIT -1
             PASSWORD '${jdbcPassword}';
         </sql>
-        <rollback>DROP USER holyfamily</rollback>
+        <rollback>DROP USER ${jdbcUser}</rollback>
     </changeSet>
 
     <changeSet author="sresnik" id="00000000000000_hf_create_database"

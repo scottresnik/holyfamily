@@ -29,7 +29,11 @@ liquibase {
     activities {
         bootstrap {
             changeLogFile 'src/main/resources/config/liquibase/bootstrap.xml'
-            changeLogParameters([jdbcUser: project.ext.holyFamilyJdbcUser, jdbcPassword: project.ext.holyFamilyJdbcPassword])
+            changeLogParameters(
+                [
+                    jdbcUser    : project.ext.holyFamilyJdbcUser,
+                    jdbcPassword: project.ext.holyFamilyJdbcPassword
+                ])
             url project.ext.holyFamilyBootstrapJdbcUrl
             username project.ext.holyFamilyBootstrapJdbcUser
             password project.ext.holyFamilyBootstrapJdbcPassword
