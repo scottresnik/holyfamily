@@ -3,6 +3,8 @@ This application was generated using JHipster 4.12.0, you can find documentation
 
 ## Development
 
+[![Build Status](https://travis-ci.org/scottresnik/holyfamily.svg?branch=master)](https://travis-ci.org/scottresnik/holyfamily)
+
 Before you can build this project, you must install and configure the following dependencies on your machine:
 
 1. [Node.js][]: We use Node to run a development web server and build the project.
