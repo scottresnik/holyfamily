@@ -1,5 +1,6 @@
 package org.holyfamily.web.rest;
 
+import org.holyfamily.config.Constants;
 import org.holyfamily.service.SocialService;
 
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ public class SocialController {
     }
 
     @GetMapping("/signup")
-    public RedirectView signUp(WebRequest webRequest, @CookieValue(name = "NG_TRANSLATE_LANG_KEY", required = false, defaultValue = "\"en\"") String langKey) {
+    public RedirectView signUp(WebRequest webRequest, @CookieValue(name = "NG_TRANSLATE_LANG_KEY", required = false, defaultValue = Constants.DEFAULT_LANGUAGE) String langKey) {
         try {
             Connection<?> connection = providerSignInUtils.getConnectionFromSession(webRequest);
             socialService.createSocialUser(connection, langKey.replace("\"", ""));
@@ -38,7 +39,7 @@ public class SocialController {
         } catch (Exception e) {
             log.error("Exception creating social user: ", e);
             return new RedirectView(URIBuilder.fromUri("/#/social-register/no-provider")
-                .queryParam("error", "true")
+                .queryParam("success", "false")
                 .build().toString(), true);
         }
     }

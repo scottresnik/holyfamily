@@ -1,11 +1,11 @@
 package org.holyfamily.service;
 
 import org.holyfamily.HolyfamilyApp;
-import org.holyfamily.config.ApplicationProperties;
 import org.holyfamily.domain.Authority;
 import org.holyfamily.domain.User;
 import org.holyfamily.repository.AuthorityRepository;
 import org.holyfamily.repository.UserRepository;
+import org.holyfamily.security.AuthoritiesConstants;
 import org.holyfamily.service.MailService;
 
 import org.junit.Before;
@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,9 +40,6 @@ public class SocialServiceIntTest {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private ApplicationProperties applicationProperties;
 
     @Mock
     private MailService mockMailService;
@@ -64,7 +60,7 @@ public class SocialServiceIntTest {
         when(mockUsersConnectionRepository.createConnectionRepository(anyString())).thenReturn(mockConnectionRepository);
 
         socialService = new SocialService(mockUsersConnectionRepository, authorityRepository,
-                passwordEncoder, userRepository, mockMailService, applicationProperties);
+                passwordEncoder, userRepository, mockMailService);
     }
 
     @Test
@@ -147,7 +143,7 @@ public class SocialServiceIntTest {
         socialService.createSocialUser(connection, "fr");
 
         // Verify
-        final Optional<User> user = userRepository.findOneByEmail("mail@mail.com");
+        final Optional<User> user = userRepository.findOneByEmailIgnoreCase("mail@mail.com");
         assertThat(user).isPresent();
 
         // Teardown
@@ -168,7 +164,7 @@ public class SocialServiceIntTest {
         socialService.createSocialUser(connection, "fr");
 
         //Verify
-        User user = userRepository.findOneByEmail("mail@mail.com").get();
+        User user = userRepository.findOneByEmailIgnoreCase("mail@mail.com").get();
         assertThat(user.getFirstName()).isEqualTo("FIRST_NAME");
         assertThat(user.getLastName()).isEqualTo("LAST_NAME");
         assertThat(user.getImageUrl()).isEqualTo("IMAGE_URL");
@@ -191,10 +187,10 @@ public class SocialServiceIntTest {
         socialService.createSocialUser(connection, "fr");
 
         //Verify
-        User user = userRepository.findOneByEmail("mail@mail.com").get();
+        User user = userRepository.findOneByEmailIgnoreCase("mail@mail.com").get();
         assertThat(user.getActivated()).isEqualTo(true);
         assertThat(user.getPassword()).isNotEmpty();
-        Authority userAuthority = authorityRepository.findOne("ROLE_USER");
+        Authority userAuthority = authorityRepository.findOne(AuthoritiesConstants.USER);
         assertThat(user.getAuthorities().toArray()).containsExactly(userAuthority);
 
         // Teardown
@@ -215,7 +211,7 @@ public class SocialServiceIntTest {
         socialService.createSocialUser(connection, "fr");
 
         //Verify
-        final User user = userRepository.findOneByEmail("mail@mail.com").get();
+        final User user = userRepository.findOneByEmailIgnoreCase("mail@mail.com").get();
         assertThat(user.getLangKey()).isEqualTo("fr");
 
         // Teardown
@@ -236,7 +232,7 @@ public class SocialServiceIntTest {
         socialService.createSocialUser(connection, "fr");
 
         //Verify
-        User user = userRepository.findOneByEmail("mail@mail.com").get();
+        User user = userRepository.findOneByEmailIgnoreCase("mail@mail.com").get();
         assertThat(user.getLogin()).isEqualTo("mail@mail.com");
 
         // Teardown
@@ -257,7 +253,7 @@ public class SocialServiceIntTest {
         socialService.createSocialUser(connection, "fr");
 
         //Verify
-        User user = userRepository.findOneByEmail("mail@mail.com").get();
+        User user = userRepository.findOneByEmailIgnoreCase("mail@mail.com").get();
         assertThat(user.getLogin()).isEqualToIgnoringCase("@LOGIN");
 
         // Teardown
@@ -281,7 +277,7 @@ public class SocialServiceIntTest {
         verify(mockConnectionRepository, times(1)).addConnection(connection);
 
         // Teardown
-        User userToDelete = userRepository.findOneByEmail("mail@mail.com").get();
+        User userToDelete = userRepository.findOneByEmailIgnoreCase("mail@mail.com").get();
         userRepository.delete(userToDelete);
     }
 
@@ -308,7 +304,7 @@ public class SocialServiceIntTest {
         assertThat(userRepository.count()).isEqualTo(initialUserCount);
 
         // Teardown
-        User userToDelete = userRepository.findOneByEmail("mail@mail.com").get();
+        User userToDelete = userRepository.findOneByEmailIgnoreCase("mail@mail.com").get();
         userRepository.delete(userToDelete);
     }
 
@@ -331,7 +327,7 @@ public class SocialServiceIntTest {
         socialService.createSocialUser(connection, "fr");
 
         //Verify
-        User userToVerify = userRepository.findOneByEmail("mail@mail.com").get();
+        User userToVerify = userRepository.findOneByEmailIgnoreCase("mail@mail.com").get();
         assertThat(userToVerify.getLogin()).isEqualTo("@other_login");
         assertThat(userToVerify.getFirstName()).isEqualTo("OTHER_FIRST_NAME");
         assertThat(userToVerify.getLastName()).isEqualTo("OTHER_LAST_NAME");
@@ -357,7 +353,7 @@ public class SocialServiceIntTest {
         verify(mockMailService, times(1)).sendSocialRegistrationValidationEmail(anyObject(), anyString());
 
         // Teardown
-        User userToDelete = userRepository.findOneByEmail("mail@mail.com").get();
+        User userToDelete = userRepository.findOneByEmailIgnoreCase("mail@mail.com").get();
         userRepository.delete(userToDelete);
     }
 

@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed, async, inject, tick, fakeAsync } from '@angular/core/testing';
-import { Renderer, ElementRef } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
+
 import { HolyfamilyTestModule } from '../../../test.module';
-import { LoginModalService } from '../../../../../../main/webapp/app/shared';
+import { EMAIL_ALREADY_USED_TYPE, LOGIN_ALREADY_USED_TYPE } from '../../../../../../main/webapp/app/shared';
 import { Register } from '../../../../../../main/webapp/app/account/register/register.service';
 import { RegisterComponent } from '../../../../../../main/webapp/app/account/register/register.component';
 
@@ -17,21 +17,10 @@ describe('Component Tests', () => {
                 imports: [HolyfamilyTestModule],
                 declarations: [RegisterComponent],
                 providers: [
-                    Register,
-                    {
-                        provide: LoginModalService,
-                        useValue: null
-                    },
-                    {
-                        provide: Renderer,
-                        useValue: null
-                    },
-                    {
-                        provide: ElementRef,
-                        useValue: null
-                    }
+                    Register
                 ]
-            }).overrideTemplate(RegisterComponent, '')
+            })
+            .overrideTemplate(RegisterComponent, '')
             .compileComponents();
         }));
 
@@ -41,7 +30,7 @@ describe('Component Tests', () => {
             comp.ngOnInit();
         });
 
-        it('should ensure the two passwords entered match', function () {
+        it('should ensure the two passwords entered match', () => {
             comp.registerAccount.password = 'password';
             comp.confirmPassword = 'non-matching';
 
@@ -65,7 +54,6 @@ describe('Component Tests', () => {
                     });
                     expect(comp.success).toEqual(true);
                     expect(comp.registerAccount.langKey).toEqual('en');
-                    
                     expect(comp.errorUserExists).toBeNull();
                     expect(comp.errorEmailExists).toBeNull();
                     expect(comp.error).toBeNull();
@@ -78,7 +66,9 @@ describe('Component Tests', () => {
                 fakeAsync((service: Register) => {
                     spyOn(service, 'save').and.returnValue(Observable.throw({
                         status: 400,
-                        _body: 'login already in use'
+                        json() {
+                            return {type : LOGIN_ALREADY_USED_TYPE}
+                        }
                     }));
                     comp.registerAccount.password = comp.confirmPassword = 'password';
 
@@ -97,7 +87,9 @@ describe('Component Tests', () => {
                 fakeAsync((service: Register) => {
                     spyOn(service, 'save').and.returnValue(Observable.throw({
                         status: 400,
-                        _body: 'email address already in use'
+                        json() {
+                            return {type : EMAIL_ALREADY_USED_TYPE}
+                        }
                     }));
                     comp.registerAccount.password = comp.confirmPassword = 'password';
 

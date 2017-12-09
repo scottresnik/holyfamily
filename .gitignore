@@ -4,7 +4,6 @@
 /build/www/**
 /src/test/javascript/coverage/
 /src/test/javascript/PhantomJS*/
-/src/main/resources/config/application-local.yml
 
 ######################
 # Node
@@ -13,6 +12,7 @@
 node_tmp/
 node_modules/
 npm-debug.log.*
+/.awcache/*
 
 ######################
 # SASS
@@ -117,7 +117,7 @@ Desktop.ini
 ######################
 # Logs
 ######################
-*.log
+*.log*
 
 ######################
 # Others

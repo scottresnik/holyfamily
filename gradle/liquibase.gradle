@@ -1,23 +1,23 @@
 import org.gradle.internal.os.OperatingSystem
 
 configurations {
-    confLiquibase
+    liquibase
 }
 
 dependencies {
-    confLiquibase "org.liquibase.ext:liquibase-hibernate5:${liquibase_hibernate5_version}"
+    liquibase "org.liquibase.ext:liquibase-hibernate5"
 }
 
 if (OperatingSystem.current().isWindows()) {
     task pathingLiquibaseJar(type: Jar) {
-        dependsOn configurations.confLiquibase
+        dependsOn configurations.liquibase
         appendix = 'pathingLiquibase'
 
         doFirst {
             manifest {
                 attributes 'Class-Path':
-                    sourceSets.main.runtimeClasspath.plus(configurations.confLiquibase)
-                        .collect {
+                    sourceSets.main.runtimeClasspath.plus(configurations.liquibase)
+                    .collect {
                         it.toURL().toString().replaceFirst(/file:\/+/, '/')
                     }.join(' ')
             }
@@ -25,63 +25,43 @@ if (OperatingSystem.current().isWindows()) {
     }
 }
 
-liquibase {
-    activities {
-        bootstrap {
-            changeLogFile 'src/main/resources/config/liquibase/bootstrap.xml'
-            changeLogParameters(
-                [
-                    jdbcUser    : project.ext.holyFamilyJdbcUser,
-                    jdbcPassword: project.ext.holyFamilyJdbcPassword
-                ])
-            url project.ext.holyFamilyBootstrapJdbcUrl
-            username project.ext.holyFamilyBootstrapJdbcUser
-            password project.ext.holyFamilyBootstrapJdbcPassword
-        }
-    }
-    runList = project.ext.liquibaseRunList
-}
-
-task liquibaseDiffChangelog(dependsOn: compileJava, type: JavaExec) {
+task initPaths(dependsOn: compileJava) {
     group = "liquibase"
-
     if (OperatingSystem.current().isWindows()) {
         dependsOn pathingLiquibaseJar
-        doFirst {
-            classpath = files(pathingLiquibaseJar.archivePath)
+	}
+}
+
+def liquibaseCommand(command) {
+    javaexec {
+        if (OperatingSystem.current().isWindows()) {
+            classpath files(pathingLiquibaseJar.archivePath)
+        } else {
+            classpath sourceSets.main.runtimeClasspath
+            classpath configurations.liquibase
         }
-    } else {
-        classpath sourceSets.main.runtimeClasspath
-        classpath configurations.confLiquibase
-    }
-    main = "liquibase.integration.commandline.Main"
+        main = "liquibase.integration.commandline.Main"
 
-    args "--changeLogFile=src/main/resources/config/liquibase/changelog/" + buildTimestamp() + "_changelog.xml"
-    args "--referenceUrl=hibernate:spring:org.holyfamily.domain?dialect=org.hibernate.dialect.PostgreSQL82Dialect&hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy"
-    args "--username=holyfamily"
-    args "--password="
-    args "--url=jdbc:postgresql://localhost:5432/holyfamily"
-    args "--driver=org.postgresql.Driver"
-    args "diffChangeLog"
-    args "--excludeObjects=oauth_access_token, oauth_approvals, oauth_client_details, oauth_client_token, oauth_code, oauth_refresh_token"
+        args "--changeLogFile=src/main/resources/config/liquibase/changelog/" + buildTimestamp() +"_changelog.xml"
+        args "--referenceUrl=hibernate:spring:org.holyfamily.domain?dialect=org.hibernate.dialect.PostgreSQL82Dialect&hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy"
+        args "--username=holyfamily"
+        args "--password="
+        args "--url=jdbc:postgresql://localhost:5432/holyfamily"
+        args "--driver=org.postgresql.Driver"
+        args command
+    }
 }
 
-
-task cleanupLiquibaseCommand {
-    group = 'liquibase'
-    doFirst {
-        project.ext['liquibaseCommandValue'] = null
+task liquibaseDiffChangeLog(dependsOn: initPaths) {
+    doLast {
+        liquibaseCommand("diffChangeLog")
     }
-    mustRunAfter liquibaseRollback
 }
 
-task cleanDb {
-    group = 'liquibase'
-    doFirst {
-        project.ext.liquibaseRunList = 'bootstrap'
-        project.ext.liquibaseCommandValue = project.ext.liquibaseInitialTag
+task liquibaseClearChecksums(dependsOn: initPaths) {
+    doLast {
+        liquibaseCommand("clearChecksums")
     }
-    finalizedBy liquibaseRollback, cleanupLiquibaseCommand
 }
 
 def buildTimestamp() {

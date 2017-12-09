@@ -3,7 +3,7 @@
     "promptValues": {
       "packageName": "org.holyfamily"
     },
-    "jhipsterVersion": "4.5.6",
+    "jhipsterVersion": "4.12.0",
     "baseName": "holyfamily",
     "packageName": "org.holyfamily",
     "packageFolder": "org/holyfamily",
@@ -21,7 +21,7 @@
     "buildTool": "gradle",
     "enableSocialSignIn": true,
     "rememberMeKey": "4748b9500c6d6a0658799cb70a00c4b88af2b42b",
-    "clientFramework": "angular2",
+    "clientFramework": "angularX",
     "useSass": false,
     "clientPackageManager": "yarn",
     "applicationType": "monolith",
