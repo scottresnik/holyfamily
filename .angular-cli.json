@@ -1,10 +1,10 @@
 {
+    "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
     "project": {
-        "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
         "name": "holyfamily"
     },
     "apps": [{
-        "root": "src/main/webapp/",
+        "root": "src/main/webapp",
         "outDir": "build/www/app",
         "assets": [
             "content",
@@ -13,7 +13,7 @@
         "index": "index.html",
         "main": "app/app.main.ts",
         "polyfills": "app/polyfills.ts",
-        "test": "",
+        "test": "src/test/javascript/spec/entry.ts",
         "tsconfig": "../../../tsconfig.json",
         "prefix": "jhi",
         "mobile": false,
@@ -23,8 +23,6 @@
         ],
         "scripts": []
     }],
-    "addons": [],
-    "packages": [],
     "lint": [{
             "project": "../../../tsconfig.json"
         },
@@ -40,15 +38,22 @@
     "defaults": {
         "styleExt": "css",
         "prefixInterfaces": false,
-        "inline": {
-            "style": true,
-            "template": false
+        "component" : {
+            "inlineStyle" : true,
+            "inlineTemplate": false,
+            "spec": false
         },
-        "spec": {
-            "component": false,
-            "directive": false,
-            "pipe": false,
-            "service": false
+        "directive" : {
+            "spec": false
+        },
+        "guard" : {
+            "spec": false
+        },
+        "pipe" : {
+            "spec": false
+        },
+        "service" : {
+            "spec": false
         }
     },
     "packageManager": "yarn"

@@ -8,6 +8,7 @@ import org.holyfamily.domain.Authority;
 import org.holyfamily.domain.User;
 import org.holyfamily.repository.AuthorityRepository;
 import org.holyfamily.repository.UserRepository;
+import org.holyfamily.security.AuthoritiesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -78,14 +79,13 @@ public class SocialService {
             throw new IllegalArgumentException("Connection cannot be null");
         }
         UserProfile userProfile = connection.fetchUserProfile();
-        if( authroizedDomainsRegex.parallelStream().anyMatch(p -> p.matcher(userProfile.getEmail()).matches())) {
+        if (authroizedDomainsRegex.parallelStream().anyMatch(p -> p.matcher(userProfile.getEmail()).matches())) {
             String providerId = connection.getKey().getProviderId();
             String imageUrl = connection.getImageUrl();
             User user = createUserIfNotExist(userProfile, langKey, providerId, imageUrl);
             createSocialConnection(user.getLogin(), connection);
             mailService.sendSocialRegistrationValidationEmail(user, providerId);
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Social account is not authorized to use this system.");
         }
     }
@@ -105,7 +105,7 @@ public class SocialService {
             throw new IllegalArgumentException("Email cannot be null with an existing login");
         }
         if (!StringUtils.isBlank(email)) {
-            Optional<User> user = userRepository.findOneByEmail(email);
+            Optional<User> user = userRepository.findOneByEmailIgnoreCase(email);
             if (user.isPresent()) {
                 log.info("User already exist associate the connection to this account");
                 return user.get();
@@ -115,7 +115,7 @@ public class SocialService {
         String login = getLoginDependingOnProviderId(userProfile, providerId);
         String encryptedPassword = passwordEncoder.encode(RandomStringUtils.random(10));
         Set<Authority> authorities = new HashSet<>(1);
-        authorities.add(authorityRepository.findOne("ROLE_USER"));
+        authorities.add(authorityRepository.findOne(AuthoritiesConstants.USER));
 
         User newUser = new User();
         newUser.setLogin(login);
@@ -132,7 +132,7 @@ public class SocialService {
     }
 
     /**
-     * @return login if provider manage a login like Twitter or Github otherwise email address.
+     * @return login if provider manage a login like Twitter or GitHub otherwise email address.
      * Because provider like Google or Facebook didn't provide login or login like "12099388847393"
      */
     private String getLoginDependingOnProviderId(UserProfile userProfile, String providerId) {

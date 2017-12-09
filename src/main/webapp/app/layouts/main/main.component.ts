@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRouteSnapshot, NavigationEnd, RoutesRecognized } from '@angular/router';
+import { Router, ActivatedRouteSnapshot, NavigationEnd } from '@angular/router';
 
 import { Title } from '@angular/platform-browser';
-import { StateStorageService } from '../../shared';
 
 @Component({
     selector: 'jhi-main',
@@ -12,8 +11,7 @@ export class JhiMainComponent implements OnInit {
 
     constructor(
         private titleService: Title,
-        private router: Router,
-        private $storageService: StateStorageService,
+        private router: Router
     ) {}
 
     private getPageTitle(routeSnapshot: ActivatedRouteSnapshot) {

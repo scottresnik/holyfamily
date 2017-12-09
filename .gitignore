@@ -13,6 +13,7 @@
 node_tmp/
 node_modules/
 npm-debug.log.*
+/.awcache/*
 
 ######################
 # SASS
@@ -60,6 +61,7 @@ local.properties
 *.ids
 *.orig
 classes/
+out/
 
 ######################
 # Visual Studio Code
@@ -76,7 +78,7 @@ classes/
 # Gradle
 ######################
 .gradle/
-/build/
+build/
 
 ######################
 # Package Files
@@ -117,7 +119,7 @@ Desktop.ini
 ######################
 # Logs
 ######################
-*.log
+*.log*
 
 ######################
 # Others

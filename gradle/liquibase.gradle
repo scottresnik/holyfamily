@@ -5,7 +5,7 @@ configurations {
 }
 
 dependencies {
-    confLiquibase "org.liquibase.ext:liquibase-hibernate5:${liquibase_hibernate5_version}"
+    confLiquibase "org.liquibase.ext:liquibase-hibernate5"
 }
 
 if (OperatingSystem.current().isWindows()) {
@@ -17,7 +17,7 @@ if (OperatingSystem.current().isWindows()) {
             manifest {
                 attributes 'Class-Path':
                     sourceSets.main.runtimeClasspath.plus(configurations.confLiquibase)
-                        .collect {
+                    .collect {
                         it.toURL().toString().replaceFirst(/file:\/+/, '/')
                     }.join(' ')
             }
@@ -42,30 +42,32 @@ liquibase {
     runList = project.ext.liquibaseRunList
 }
 
-task liquibaseDiffChangelog(dependsOn: compileJava, type: JavaExec) {
+task initPaths(dependsOn: compileJava) {
     group = "liquibase"
-
     if (OperatingSystem.current().isWindows()) {
         dependsOn pathingLiquibaseJar
-        doFirst {
-            classpath = files(pathingLiquibaseJar.archivePath)
-        }
-    } else {
-        classpath sourceSets.main.runtimeClasspath
-        classpath configurations.confLiquibase
-    }
-    main = "liquibase.integration.commandline.Main"
-
-    args "--changeLogFile=src/main/resources/config/liquibase/changelog/" + buildTimestamp() + "_changelog.xml"
-    args "--referenceUrl=hibernate:spring:org.holyfamily.domain?dialect=org.hibernate.dialect.PostgreSQL82Dialect&hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy"
-    args "--username=holyfamily"
-    args "--password="
-    args "--url=jdbc:postgresql://localhost:5432/holyfamily"
-    args "--driver=org.postgresql.Driver"
-    args "diffChangeLog"
-    args "--excludeObjects=oauth_access_token, oauth_approvals, oauth_client_details, oauth_client_token, oauth_code, oauth_refresh_token"
+	}
 }
 
+def liquibaseCommand(command) {
+    javaexec {
+        if (OperatingSystem.current().isWindows()) {
+            classpath files(pathingLiquibaseJar.archivePath)
+        } else {
+            classpath sourceSets.main.runtimeClasspath
+            classpath configurations.confLiquibase
+        }
+        main = "liquibase.integration.commandline.Main"
+
+        args "--changeLogFile=src/main/resources/config/liquibase/changelog/" + buildTimestamp() +"_changelog.xml"
+        args "--referenceUrl=hibernate:spring:org.holyfamily.domain?dialect=org.hibernate.dialect.PostgreSQL82Dialect&hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy"
+        args "--username=holyfamily"
+        args "--password="
+        args "--url=jdbc:postgresql://localhost:5432/holyfamily"
+        args "--driver=org.postgresql.Driver"
+        args command
+    }
+}
 
 task cleanupLiquibaseCommand {
     group = 'liquibase'

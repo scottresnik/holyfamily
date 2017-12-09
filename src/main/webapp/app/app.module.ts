@@ -2,14 +2,14 @@ import './vendor.ts';
 
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { Ng2Webstorage } from 'ng2-webstorage';
+import { Ng2Webstorage } from 'ngx-webstorage';
 
 import { HolyfamilySharedModule, UserRouteAccessService } from './shared';
+import { HolyfamilyAppRoutingModule} from './app-routing.module';
 import { HolyfamilyHomeModule } from './home/home.module';
 import { HolyfamilyAdminModule } from './admin/admin.module';
 import { HolyfamilyAccountModule } from './account/account.module';
 import { HolyfamilyEntityModule } from './entities/entity.module';
-
 import { customHttpProvider } from './blocks/interceptor/http.provider';
 import { PaginationConfig } from './blocks/config/uib-pagination.config';
 
@@ -17,7 +17,6 @@ import { PaginationConfig } from './blocks/config/uib-pagination.config';
 
 import {
     JhiMainComponent,
-    LayoutRoutingModule,
     NavbarComponent,
     FooterComponent,
     ProfileService,
@@ -28,7 +27,7 @@ import {
 @NgModule({
     imports: [
         BrowserModule,
-        LayoutRoutingModule,
+        HolyfamilyAppRoutingModule,
         Ng2Webstorage.forRoot({ prefix: 'jhi', separator: '-'}),
         HolyfamilySharedModule,
         HolyfamilyHomeModule,
