@@ -2,6 +2,7 @@ package org.holyfamily.config;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
  * See {@link io.github.jhipster.config.JHipsterProperties} for a good example.
  */
 @ConfigurationProperties(prefix = "application", ignoreUnknownFields = false)
+@Validated
 public class ApplicationProperties {
     private List<String> authorizedDomains;
 
