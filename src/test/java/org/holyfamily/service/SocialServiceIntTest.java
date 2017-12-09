@@ -1,6 +1,7 @@
 package org.holyfamily.service;
 
 import org.holyfamily.HolyfamilyApp;
+import org.holyfamily.config.ApplicationProperties;
 import org.holyfamily.domain.Authority;
 import org.holyfamily.domain.User;
 import org.holyfamily.repository.AuthorityRepository;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,6 +41,9 @@ public class SocialServiceIntTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ApplicationProperties applicationProperties;
 
     @Mock
     private MailService mockMailService;
@@ -59,7 +64,7 @@ public class SocialServiceIntTest {
         when(mockUsersConnectionRepository.createConnectionRepository(anyString())).thenReturn(mockConnectionRepository);
 
         socialService = new SocialService(mockUsersConnectionRepository, authorityRepository,
-                passwordEncoder, userRepository, mockMailService);
+                passwordEncoder, userRepository, mockMailService, applicationProperties);
     }
 
     @Test

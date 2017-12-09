@@ -1,5 +1,6 @@
 package org.holyfamily.config;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import javax.validation.Valid;
@@ -15,6 +16,7 @@ public class ApplicationProperties {
     private List<String> authorizedDomains;
 
     @Valid
+    @NotEmpty
     public List<String> getAuthorizedDomains() {
         return authorizedDomains;
     }
