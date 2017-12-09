@@ -1,13 +1,12 @@
 package org.holyfamily.service;
 
 import org.holyfamily.HolyfamilyApp;
+import org.holyfamily.config.ApplicationProperties;
 import org.holyfamily.domain.Authority;
 import org.holyfamily.domain.User;
 import org.holyfamily.repository.AuthorityRepository;
 import org.holyfamily.repository.UserRepository;
 import org.holyfamily.security.AuthoritiesConstants;
-import org.holyfamily.service.MailService;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +40,9 @@ public class SocialServiceIntTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ApplicationProperties applicationProperties;
+
     @Mock
     private MailService mockMailService;
 
@@ -60,7 +62,7 @@ public class SocialServiceIntTest {
         when(mockUsersConnectionRepository.createConnectionRepository(anyString())).thenReturn(mockConnectionRepository);
 
         socialService = new SocialService(mockUsersConnectionRepository, authorityRepository,
-                passwordEncoder, userRepository, mockMailService);
+            passwordEncoder, userRepository, mockMailService, applicationProperties);
     }
 
     @Test

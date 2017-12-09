@@ -1,13 +1,14 @@
 package org.holyfamily.service;
 
+import com.google.common.collect.ImmutableSet;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.holyfamily.config.ApplicationProperties;
 import org.holyfamily.domain.Authority;
 import org.holyfamily.domain.User;
 import org.holyfamily.repository.AuthorityRepository;
 import org.holyfamily.repository.UserRepository;
 import org.holyfamily.security.AuthoritiesConstants;
-
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,9 +22,13 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class SocialService {
+
+    private final static String DOMAIN_REGEX_FMT = "^.*@%s$";
 
     private final Logger log = LoggerFactory.getLogger(SocialService.class);
 
@@ -37,15 +42,26 @@ public class SocialService {
 
     private final MailService mailService;
 
+    private final ApplicationProperties applicationProperties;
+
+    private Set<Pattern> authroizedDomainsRegex;
+
     public SocialService(UsersConnectionRepository usersConnectionRepository, AuthorityRepository authorityRepository,
-            PasswordEncoder passwordEncoder, UserRepository userRepository,
-            MailService mailService) {
+                         PasswordEncoder passwordEncoder, UserRepository userRepository,
+                         MailService mailService, ApplicationProperties applicationProperties) {
 
         this.usersConnectionRepository = usersConnectionRepository;
         this.authorityRepository = authorityRepository;
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.mailService = mailService;
+        this.applicationProperties = applicationProperties;
+        initAuthorizedDomainRegex(this.applicationProperties);
+    }
+
+    private void initAuthorizedDomainRegex(ApplicationProperties applicationProperties) {
+        authroizedDomainsRegex = ImmutableSet.copyOf(applicationProperties.getAuthorizedDomains().stream().map(s ->
+            String.format(DOMAIN_REGEX_FMT, s)).map(Pattern::compile).collect(Collectors.toList()));
     }
 
     public void deleteUserSocialConnection(String login) {
@@ -63,11 +79,15 @@ public class SocialService {
             throw new IllegalArgumentException("Connection cannot be null");
         }
         UserProfile userProfile = connection.fetchUserProfile();
-        String providerId = connection.getKey().getProviderId();
-        String imageUrl = connection.getImageUrl();
-        User user = createUserIfNotExist(userProfile, langKey, providerId, imageUrl);
-        createSocialConnection(user.getLogin(), connection);
-        mailService.sendSocialRegistrationValidationEmail(user, providerId);
+        if (authroizedDomainsRegex.parallelStream().anyMatch(p -> p.matcher(userProfile.getEmail()).matches())) {
+            String providerId = connection.getKey().getProviderId();
+            String imageUrl = connection.getImageUrl();
+            User user = createUserIfNotExist(userProfile, langKey, providerId, imageUrl);
+            createSocialConnection(user.getLogin(), connection);
+            mailService.sendSocialRegistrationValidationEmail(user, providerId);
+        } else {
+            throw new IllegalArgumentException("Social account is not authorized to use this system.");
+        }
     }
 
     private User createUserIfNotExist(UserProfile userProfile, String langKey, String providerId, String imageUrl) {
@@ -113,7 +133,7 @@ public class SocialService {
 
     /**
      * @return login if provider manage a login like Twitter or GitHub otherwise email address.
-     *         Because provider like Google or Facebook didn't provide login or login like "12099388847393"
+     * Because provider like Google or Facebook didn't provide login or login like "12099388847393"
      */
     private String getLoginDependingOnProviderId(UserProfile userProfile, String providerId) {
         switch (providerId) {
